@@ -1,0 +1,4 @@
+Load r1, #0
+Load r2, #1
+Add r3, r1, r2
+Store r3, #3
