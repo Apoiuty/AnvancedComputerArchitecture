@@ -2,6 +2,7 @@
 寄存器类
 """
 import numpy as np
+from memory import Word
 
 
 def check_reg(s):
@@ -17,7 +18,7 @@ def check_reg(s):
     else:
         return -1
 
-    if 0 < num < 33:
+    if 0 <= num < 32:
         return num
     else:
         return -1
@@ -29,14 +30,17 @@ class Reg:
     """
 
     def __init__(self):
-        self.__regs = np.zeros((32, 1), dtype=np.uint32)
+        self.__regs = [Word() for i in range(32)]
+        # 初始化寄存器
+        for i in range(32):
+            self.__regs[i][0] = 0
 
     def __getitem__(self, item):
         reg_num = check_reg(item)
         if reg_num != -1:
             return self.__regs[reg_num][0]
         else:
-            print("Access nonexistent reg.\n")
+            print("Access nonexistent reg.")
             raise Exception
 
     def __setitem__(self, key, value):
@@ -44,7 +48,7 @@ class Reg:
         if reg_num != -1:
             self.__regs[reg_num][0] = value
         else:
-            print("Access nonexistent reg.\n")
+            print("Access nonexistent reg.")
             raise Exception
 
 
