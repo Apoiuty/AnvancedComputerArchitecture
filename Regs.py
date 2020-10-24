@@ -1,27 +1,7 @@
 """
 寄存器类
 """
-import numpy as np
-from memory import Word
-
-
-def check_reg(s):
-    """
-    检查字符串s是否合法
-    :param s: r1,r2,...
-    :return: 合法返回寄存器号，不合法返回-1
-    """
-    if isinstance(s, str):
-        num = int(s[1:])
-    elif isinstance(s, int):
-        num = s
-    else:
-        return -1
-
-    if 0 <= num < 32:
-        return num
-    else:
-        return -1
+from memory import *
 
 
 class Reg:
@@ -52,7 +32,59 @@ class Reg:
             raise Exception
 
 
-# 程序计数器
-PC = 0
-# 创建寄存器对象
-regs = Reg()
+class PC:
+    """
+    PC寄存器
+    """
+
+    def __init__(self):
+        self.esp = 0
+
+    def __getitem__(self, item):
+        return self.esp
+
+    def __setitem__(self, key, value):
+        self.esp = value
+
+
+def check_reg(s):
+    """
+    检查字符串s是否合法
+    :param s: r1,r2,...
+    :return: 合法返回寄存器号，不合法返回-1
+    """
+    if isinstance(s, str):
+        num = int(s[1:])
+    elif isinstance(s, int):
+        num = s
+    else:
+        return -1
+
+    if 0 <= num < 32:
+        return num
+    else:
+        return -1
+
+
+class Stack:
+    """
+    栈
+    """
+
+    def __init__(self):
+        self.esp = -1
+        # 栈顶元素
+        self.ebp = -1
+        # 栈底
+        self.__stack = [0] * 1000
+
+    def push(self, data):
+        self.esp += 1
+        self.__stack[self.esp] = data
+
+    def pop(self):
+        if self.esp != -1:
+            self.esp -= 1
+            return self.__stack[self.esp + 1]
+        else:
+            print("Empty stack.")

@@ -7,15 +7,19 @@ import numpy as np
 Available_Addr = 0  # 可用页
 
 
-def addr_mode(addr):
+class Imm:
     """
-    寻址方式确定，并返回绝对地址（目前只实现直接寻址）
-    # TODO
-    :param addr: 地址字符串
-    :return: 绝地址
+    立即数对象
     """
-    if addr.startswith('#'):
-        return int(addr[1:])
+
+    def __init__(self):
+        pass
+
+    def __getitem__(self, item):
+        if isinstance(item, int):
+            return np.int32(item)
+        elif isinstance(item, float):
+            return np.float32(item)
 
 
 def check_boundary(addr, n):
@@ -52,9 +56,9 @@ class Word:
         :param value: 值
         :return:
         """
-        if isinstance(value, int):
+        if isinstance(value, int) or isinstance(value, np.int32):
             self.__data = np.array([value], dtype=np.int32)
-        elif isinstance(value, float):
+        elif isinstance(value, float) or isinstance(value, np.float32):
             self.__data = np.array([value], dtype=np.float32)
 
 
@@ -102,5 +106,3 @@ class Memory:
                 raise Exception
 
 
-# 创建内存对象
-memory = Memory()
