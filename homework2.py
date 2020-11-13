@@ -1,8 +1,12 @@
-from interpreter import *
+from Units.interpreter import *
+
+# 读取汇编指令
+fp = open('test_code/code2.txt', 'r')
+Code_Lines = fp.readlines()
 
 # 处理标签并生成跳转表
 for i in range(len(Code_Lines)):
-    label_remove(i, Code_Lines[i])
+    label_remove(i, Code_Lines)
 pc[0] = Lables['.start:']
 
 # 执行指令

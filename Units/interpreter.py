@@ -1,14 +1,16 @@
 from sys import exit
-from operation import *
-from unit import *
+from Units.operation import *
+from Units.unit import *
 
 
-def label_remove(line_num, line):
+def label_remove(line_num, Code_Lines):
     """
     将命令中的标签加入命令跳转表中
-    :param line: 汇编命令行
+    :param line_num:行数
+    :param Code_Lines: 汇编命令行数组
     :return:
     """
+    line = Code_Lines[line_num]
     line = line.strip()
     if line.startswith('.'):
         white = line.index(' ')
@@ -28,7 +30,7 @@ def label_index(line_num, label):
 
 def assembly_interpreter(line):
     """
-    汇编语言解释器
+    汇编语言解释器(ID段)
     :param line_num: 行号
     :param line: 一行汇编语言字符串
     :return: 包含操作码和操作数的列表
@@ -56,7 +58,11 @@ def assembly_interpreter(line):
 
 
 def execute_cmd(cmd):
-    """执行指令"""
+    """
+    执行命令（EX）cmd[0]为操作码，cmd[1:]为操作数
+    :param cmd:
+    :return:
+    """
     pc[0] += 1
     # PC++
     cmd = assembly_interpreter(cmd)

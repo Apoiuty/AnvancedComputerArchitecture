@@ -1,7 +1,7 @@
 """
 寄存器类
 """
-from memory import *
+from Units.memory import *
 
 
 class Reg:
