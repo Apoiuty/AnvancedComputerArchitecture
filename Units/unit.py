@@ -15,15 +15,13 @@ cc = [0, 0, 0]
 # 条件码
 stack = Stack()
 
-"""
-记分牌"""
-func_unit = {"mv": {"busy": 0, "op": 0, "fi": 0, "fj": 0, "fk": 0, "qj": 0, "qk": 0, "rj": 0, "rk": 0},
-             "mul1": {"busy": 0, "op": 0, "fi": 0, "fj": 0, "fk": 0, "qj": 0, "qk": 0, "rj": 0, "rk": 0},
-             "mul2": {"busy": 0, "op": 0, "fi": 0, "fj": 0, "fk": 0, "qj": 0, "qk": 0, "rj": 0, "rk": 0},
-             "addf": {"busy": 0, "op": 0, "fi": 0, "fj": 0, "fk": 0, "qj": 0, "qk": 0, "rj": 0, "rk": 0},
-             "divf": {"busy": 0, "op": 0, "fi": 0, "fj": 0, "fk": 0, "qj": 0, "qk": 0, "rj": 0, "rk": 0}}
-
 regs_table = {"r" + str(i): 0 for i in range(31)}
 
 # 计分板大小
 instruction_table = []
+
+finished_cmd = []
+# 完成的指令
+
+# 在本周期读的不在本周期写，避免冒险
+RinClock = []
