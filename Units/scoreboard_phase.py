@@ -44,24 +44,57 @@ def set_func_units(cmd, op, unit):
     :return:
     """
     global regs_table
-    # vj
-    if regs_table.get(cmd[2], 0):
-        unit.vj = regs_table[cmd[2]]
-        regs_table[cmd[2]].sendto.append([unit, 0])
-    else:
-        s2 = addr_mode(cmd[2])
-        unit.vj = s2[0][s2[1]]
 
-    # vk
     if op not in {'load', 'store'}:
-        if regs_table[cmd[3]]:
+        # vj
+        if regs_table.get(cmd[2], 0):
+            unit.vj = regs_table[cmd[2]]
+            regs_table[cmd[2]].sendto.append([unit, 0])
+        else:
+            s2 = addr_mode(cmd[2])
+            unit.vj = s2[0][s2[1]]
+
+        # vk
+        if regs_table.get(cmd[3], 0):
             unit.vk = regs_table[cmd[3]]
             regs_table[cmd[3]].sendto.append([unit, 1])
         else:
             s3 = addr_mode(cmd[3])
             unit.vk = s3[0][s3[1]]
+    else:
+        if op == 'load':
+            reg, imm = tomasulo_addr(cmd[2])
+            unit.addr = imm
+            # load的vj
+            if regs_table[reg]:
+                unit.vj = regs_table[reg]
+                regs_table[reg].sendto.append([unit, 0])
+            else:
+                s2 = addr_mode(reg)
+                unit.vj = s2[0][s2[1]]
+
+        else:
+            # 用vk来表示des的需要的寄存器
+            reg, imm = tomasulo_addr(cmd[1])
+            unit.addr = imm
+            if regs_table[reg]:
+                unit.vk = regs_table[reg]
+                regs_table[reg].sendto.append([unit, 1])
+            else:
+                s2 = addr_mode(reg)
+                unit.vk = s2[0][s2[1]]
+
+            # vj表示要存储的值
+            if regs_table[cmd[2]]:
+                unit.vj = regs_table[cmd[2]]
+                regs_table[cmd[2]].sendto.append([unit, 0])
+            else:
+                s2 = addr_mode(reg)
+                unit.vj = s2[0][s2[1]]
+
     # 写入的位置
     unit.fi = cmd[1]
+
     # 设置qi
     if op != 'store':
         regs_table[cmd[1]] = unit

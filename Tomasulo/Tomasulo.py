@@ -1,7 +1,7 @@
 from Units.scoreboard_phase import *
 
 # 导入代码
-fp = open('test_code/tomasulo.txt', 'r')
+fp = open('../test_code/tomasulo.txt', 'r')
 Code_Lines = fp.readlines()
 
 # 设置一下存储器的值
@@ -80,7 +80,10 @@ while (clock):
     if cnt == code_length:
         break
 # 打印结果
+print('|{0:^20s}|{1:^4s}|{2:^4s}|{3:^4s}|'.format('Instruction', 'IS', 'ES', 'WB'))
+print('-' * 37)
 for i in instruction_table:
-    print(i[0:-1])
+    print('|{0:<20s}|{1:^4d}|{2:^4d}|{3:^4d}|'.format(i[0][0:-1], i[1], i[2], i[3]))
+print('-' * 37)
 
 print(regs[6])

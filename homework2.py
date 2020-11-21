@@ -1,5 +1,8 @@
 from Units.interpreter import *
 
+"""
+指令集测试
+"""
 # 读取汇编指令
 fp = open('test_code/code2.txt', 'r')
 Code_Lines = fp.readlines()

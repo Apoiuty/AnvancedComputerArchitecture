@@ -1,3 +1,6 @@
+"""
+记分牌算法
+"""
 from Units.scoreboard_phase import *
 
 # 导入代码

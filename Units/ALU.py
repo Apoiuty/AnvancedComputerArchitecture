@@ -28,18 +28,24 @@ class alu_unit:
         self.cnt = -1
         self.sendto = []
         self.op_set = 0
+        self.addr = 0
 
     def setoprand(self):
         """
         传入汇编指令行并开始计数
         :return:
         """
+        # 已经设置了oprand
         self.op_set = 1
         self.cnt = self.calculate_time
-
         self.des = addr_mode(self.fi)
 
-        if self.op in {'load', 'store'}:
+        if self.op == 'store':
+            self.des = (memory, self.addr + self.vk)
+
+        if self.op == 'load':
+            self.result = memory[self.vj + self.addr]
+        elif self.op == 'store':
             self.result = self.vj
         elif self.op == 'addf':
             self.result = self.vj + self.vk
@@ -50,7 +56,7 @@ class alu_unit:
         elif self.op == 'mulf':
             self.result = self.vj * self.vk
 
-        print(self.op, self.result)
+        # print(self.op, self.result)
 
     def get_result(self):
         """
@@ -73,6 +79,7 @@ class alu_unit:
                 self.des[0][self.des[1]] = self.result
         else:
             self.des[0][self.des[1]] = self.result
+
         # 写入其他单元
         for unit in self.sendto:
             if unit[1] == 0:

@@ -125,3 +125,21 @@ def addr_mode(addr):
             return memory, imm + regs[addr[0]] * int(addr[1])
         elif len(addr) == 3:
             return memory, imm + regs[addr[0]] + regs[addr[1]] * int(addr[2])
+
+
+def tomasulo_addr(addr):
+    """
+    tomasulo算法中寻址方式确定
+    :param addr:
+    :return:寄存器和立即数
+    """
+    addr = addr[1:]
+    left = addr.index('[')
+    right = addr.index(']')
+    imm = addr[:left]
+    imm = int(imm)
+    addr = addr[left + 1:right]
+    addr = addr.replace(';', ' ')
+    addr = addr.split()
+    reg = addr[0]
+    return (reg, imm)
