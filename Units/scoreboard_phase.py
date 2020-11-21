@@ -8,31 +8,30 @@ def try_issue(cmd):
     :return:
     """
     op = cmd[0]
+    global load_store
 
-    if op == 'addf':
-        if add_unit.busy == 0:
-            set_func_units(cmd, 'addf', add_unit)
-            return add_unit
-    if op == 'subf':
-        if add_unit.busy == 0:
-            set_func_units(cmd, 'subf', add_unit)
-            return add_unit
-    elif op == 'mulf':
-        if mul1_unit.busy == 0:
-            set_func_units(cmd, 'mul1', mul1_unit)
-            return mul1_unit
-        elif mul2_unit.busy == 0:
-            set_func_units(cmd, 'mul2', mul2_unit)
-            return mul2_unit
-
-    elif op == 'mv':
-        if integer_unit.busy == 0:
-            set_func_units(cmd, 'mv', integer_unit)
-            return integer_unit
-    elif op == 'divf':
-        if div_unit.busy == 0:
-            set_func_units(cmd, 'divf', div_unit)
-            return div_unit
+    if op == 'load' and alu_unit.load:
+        alu_unit.load -= 1
+        tmp_unit = alu_unit(op)
+        set_func_units(cmd, op, tmp_unit)
+        load_store.append(tmp_unit)
+        return tmp_unit
+    if op == 'store' and alu_unit.store:
+        alu_unit.store -= 1
+        tmp_unit = alu_unit(op)
+        set_func_units(cmd, op, tmp_unit)
+        load_store.append(tmp_unit)
+        return tmp_unit
+    if (op == 'addf' or op == 'subf') and alu_unit.add:
+        alu_unit.add -= 1
+        tmp_unit = alu_unit(op)
+        set_func_units(cmd, op, tmp_unit)
+        return tmp_unit
+    if (op == 'mulf' or op == 'divf') and alu_unit.mul:
+        alu_unit.mul -= 1
+        tmp_unit = alu_unit(op)
+        set_func_units(cmd, op, tmp_unit)
+        return tmp_unit
     return 0
 
 
@@ -45,21 +44,27 @@ def set_func_units(cmd, op, unit):
     :return:
     """
     global regs_table
-    unit.busy = 1
-    unit.op = op
-    unit.fi = cmd[1]
-    unit.fj = cmd[2]
-    unit.qj = regs_table[cmd[2]]
-    regs_table[cmd[1]] = unit
-    unit.rj = not regs_table[cmd[2]]
-    if op != 'mv':
-        unit.fk = cmd[3]
-        unit.qk = regs_table[cmd[3]]
-        unit.rk = not regs_table[cmd[3]]
+    # vj
+    if regs_table.get(cmd[2], 0):
+        unit.vj = regs_table[cmd[2]]
+        regs_table[cmd[2]].sendto.append([unit, 0])
     else:
-        unit.fk = 0
-        unit.qk = 0
-        unit.rk = 1
+        s2 = addr_mode(cmd[2])
+        unit.vj = s2[0][s2[1]]
+
+    # vk
+    if op not in {'load', 'store'}:
+        if regs_table[cmd[3]]:
+            unit.vk = regs_table[cmd[3]]
+            regs_table[cmd[3]].sendto.append([unit, 1])
+        else:
+            s3 = addr_mode(cmd[3])
+            unit.vk = s3[0][s3[1]]
+    # 写入的位置
+    unit.fi = cmd[1]
+    # 设置qi
+    if op != 'store':
+        regs_table[cmd[1]] = unit
 
 
 def issue(cmd):
@@ -71,24 +76,29 @@ def issue(cmd):
     global instruction_table
     cmd = assembly_interpreter(cmd)
     # cmd1是des
-    if not regs_table[cmd[1]]:
-        return try_issue(cmd)
+    return try_issue(cmd)
 
 
-def read_oprand(cmd_num):
+def read_oprand(unit):
     """
     获取指令操作数
     :param cmd:
     :return:
     """
-    unit = instruction_table[cmd_num][-1]
     # 设置功能单元状态
     # 设置操作数
-    if unit.rj and unit.rk:
-        unit.rj = unit.rk = unit.qj = unit.qk = 0
+    global load_store
+    if (isinstance(unit.vj, alu_unit) or isinstance(unit.vk, alu_unit)) or \
+            ((unit.op in {"load", "store"} and load_store and not unit == load_store[0]) or \
+             (unit.op in {"load", "store"} and not load_store)) or unit.op_set:
+        # 如果还有操作数未生成则继续等待
+        return 0
+    else:
+        if unit.op in {"load", "store"}:
+            if load_store:
+                load_store.pop(0)
         unit.setoprand()
         return 1
-    return 0
 
 
 def check_hazard(i, write_back):
@@ -133,3 +143,19 @@ def write_Back(write_back, next_cmd, i):
     #     设置功能单元状态和寄存器结果状态
     regs_table[write_back_unit.fi] = 0
     write_back_unit.busy = 0
+
+
+def relase_alu(unit):
+    """
+    释放单元
+    :param unit:
+    :return:
+    """
+    if unit.op in {'load'}:
+        alu_unit.load += 1
+    elif unit.op == 'store':
+        alu_unit.store += 1
+    elif unit.op in {'mulf', 'divf'}:
+        alu_unit.mul += 1
+    else:
+        alu_unit.add += 1

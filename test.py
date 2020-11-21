@@ -1,7 +1,11 @@
-for i in range(0):
-    print(i)
+print(None in set())
 
-print([].append(0))
-a = []
-a.append(0)
-print(a)
+
+class A:
+    pass
+
+
+a1 = A()
+a2 = A()
+s = {a1}
+print(a1 in s)
